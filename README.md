@@ -78,17 +78,17 @@
 
 ```bash
 # 📦 Package Managers
-npm install formguard
-yarn add formguard
-pnpm add formguard
-bun add formguard
+npm install @sc4rfurry-github/formguard
+yarn add @sc4rfurry-github/formguard
+pnpm add @sc4rfurry-github/formguard
+bun add @sc4rfurry-github/formguard
 
 # 🌐 CDN (Latest)
-https://unpkg.com/formguard@latest/dist/formguard.min.js
-https://cdn.jsdelivr.net/npm/formguard@latest/dist/formguard.min.js
+https://unpkg.com/@sc4rfurry-github/formguard@latest/dist/formguard.min.js
+https://cdn.jsdelivr.net/npm/@sc4rfurry-github/formguard@latest/dist/formguard.min.js
 
 # 🌐 CDN (Specific Version)
-https://unpkg.com/formguard@1.0.0/dist/formguard.min.js
+https://unpkg.com/@sc4rfurry-github/formguard@1.0.0/dist/formguard.min.js
 ```
 
 </details>
@@ -118,7 +118,7 @@ https://unpkg.com/formguard@1.0.0/dist/formguard.min.js
 
 ```javascript
 // 2️⃣ Initialize FormGuard
-import { FormGuard } from 'formguard';
+import { FormGuard } from '@sc4rfurry-github/formguard';
 
 const formGuard = new FormGuard('#signup-form', {
   validateOn: 'blur',
@@ -196,13 +196,13 @@ Validate fields only when certain conditions are met.
 
 ```bash
 # npm
-npm install formguard
+npm install @sc4rfurry-github/formguard
 
 # Yarn
-yarn add formguard
+yarn add @sc4rfurry-github/formguard
 
 # pnpm (recommended for performance)
-pnpm add formguard
+pnpm add @sc4rfurry-github/formguard
 
 # Bun (fastest)
 bun add formguard
@@ -231,13 +231,13 @@ bun add formguard
 
 ```javascript
 // ES6 Modules (recommended)
-import { FormGuard } from 'formguard';
+import { FormGuard } from '@sc4rfurry-github/formguard';
 
 // Default import
-import FormGuard from 'formguard';
+import FormGuard from '@sc4rfurry-github/formguard';
 
 // CommonJS
-const { FormGuard } = require('formguard');
+const { FormGuard } = require('@sc4rfurry-github/formguard');
 
 // AMD
 define(['formguard'], function(FormGuard) {
