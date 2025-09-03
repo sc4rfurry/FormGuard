@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FormGuard - Advanced Features Example</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    
+    /* FormGuard styles */
+    .error {
+      border-color: #dc3545;
+      background-color: #fff5f5;
+    }
+    
+    .valid {
+      border-color: #28a745;
+      background-color: #f5fff5;
+    }
+    
+    .error-message {
+      color: #dc3545;
+      font-size: 14px;
+      margin-top: 5px;
+      display: block;
+    }
+    
+    .loading {
+      border-color: #ffc107;
+      background-color: #fffbf0;
+    }
+    
+    .loading::after {
+      content: " (checking...)";
+      color: #856404;
+      font-size: 12px;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    
+    .btn:hover {
+      background-color: #0056b3;
+    }
+    
+    .btn-secondary {
+      background-color: #6c757d;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #545b62;
+    }
+    
+    .demo-section {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+    }
+    
+    .demo-section h2 {
+      margin-top: 0;
+    }
+    
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+      width: auto;
+      margin-right: 10px;
+    }
+    
+    .conditional-fields {
+      padding: 15px;
+      background: #e9ecef;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+    
+    .field-row {
+      display: flex;
+      gap: 15px;
+    }
+    
+    .field-row .form-group {
+      flex: 1;
+    }
+    
+    .status-display {
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      border-radius: 4px;
+      padding: 10px;
+      margin-top: 20px;
+    }
+    
+    .error-summary {
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      border-radius: 4px;
+      padding: 10px;
+      margin-top: 20px;
+      display: none;
+    }
+    
+    .error-summary.show {
+      display: block;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-field {
+      flex: 1;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .validation-results {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: #f9f9f9;
+    }
+
+    .group-result {
+      margin-bottom: 1rem;
+      padding: 0.75rem;
+      border-radius: 4px;
+    }
+
+    .group-result.success {
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+    }
+
+    .group-result.error {
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+    }
+
+    .overall-result {
+      margin-bottom: 1rem;
+      padding: 0.75rem;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    .overall-result.success {
+      background: #d1ecf1;
+      border: 1px solid #bee5eb;
+      color: #0c5460;
+    }
+
+    .overall-result.error {
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+    }
+  </style>
+</head>
+<body>
+  <h1>FormGuard - Advanced Features</h1>
+  
+  <div class="demo-section">
+    <h2>1. Conditional Validation</h2>
+    <p>Fields that are only validated when certain conditions are met.</p>
+    
+    <form id="conditionalForm">
+      <div class="checkbox-group">
+        <input type="checkbox" id="hasCompany" name="hasCompany" value="true">
+        <label for="hasCompany">I represent a company</label>
+      </div>
+      
+      <div class="conditional-fields" id="companyFields" style="display: none;">
+        <div class="form-group">
+          <label for="companyName">Company Name</label>
+          <input 
+            type="text" 
+            id="companyName" 
+            name="companyName"
+            data-validate="required|min:2"
+            data-validate-if="hasCompany:true"
+            data-error-msg="Company name is required and must be at least 2 characters"
+          >
+        </div>
+        
+        <div class="form-group">
+          <label for="taxId">Tax ID</label>
+          <input 
+            type="text" 
+            id="taxId" 
+            name="taxId"
+            data-validate="required|pattern:^[0-9]{2}-[0-9]{7}$"
+            data-validate-if="hasCompany:true"
+            data-error-msg="Tax ID must be in format: 12-3456789"
+          >
+        </div>
+      </div>
+      
+      <div class="checkbox-group">
+        <input type="checkbox" id="needsShipping" name="needsShipping" value="true">
+        <label for="needsShipping">Ship to different address</label>
+      </div>
+      
+      <div class="conditional-fields" id="shippingFields" style="display: none;">
+        <div class="field-row">
+          <div class="form-group">
+            <label for="shippingStreet">Shipping Address</label>
+            <input 
+              type="text" 
+              id="shippingStreet" 
+              name="shippingStreet"
+              data-validate="required"
+              data-validate-if="needsShipping:true"
+              data-error-msg="Shipping address is required"
+            >
+          </div>
+          
+          <div class="form-group">
+            <label for="shippingZip">ZIP Code</label>
+            <input 
+              type="text" 
+              id="shippingZip" 
+              name="shippingZip"
+              data-validate="required|pattern:^[0-9]{5}$"
+              data-validate-if="needsShipping:true"
+              data-error-msg="ZIP code must be 5 digits"
+            >
+          </div>
+        </div>
+      </div>
+      
+      <button type="submit" class="btn">Submit</button>
+    </form>
+  </div>
+  
+  <div class="demo-section">
+    <h2>2. Async Validation (Simulated)</h2>
+    <p>Username availability checking with debounced API calls using the new unique validator.</p>
+
+    <form id="asyncForm">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          data-validate="required|min:3|unique"
+          data-error-msg="Username must be at least 3 characters"
+          placeholder="Try: admin, user, test"
+        >
+        <small>Try typing 'admin', 'user', or 'test' to see taken usernames</small>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          data-validate="required|email|unique"
+          data-error-msg="Please enter a valid email address"
+        >
+        <small>Email uniqueness is also checked</small>
+      </div>
+
+      <button type="submit" class="btn">Check Availability</button>
+    </form>
+  </div>
+
+  <div class="demo-section">
+    <h2>3. Conditional Validation</h2>
+    <p>Fields that validate only when certain conditions are met using data-validate-if.</p>
+
+    <form id="conditionalForm">
+      <div class="form-group">
+        <label>
+          <input type="checkbox" name="shippingSame" value="true" checked>
+          Shipping address same as billing
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label for="billingAddress">Billing Address</label>
+        <input
+          type="text"
+          id="billingAddress"
+          name="billingAddress"
+          data-validate="required|min:10"
+          data-error-msg="Billing address is required and must be at least 10 characters"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="shippingAddress">Shipping Address</label>
+        <input
+          type="text"
+          id="shippingAddress"
+          name="shippingAddress"
+          data-validate="required|min:10"
+          data-validate-if="shippingSame:false"
+          data-error-msg="Shipping address is required when different from billing"
+        >
+        <small>Only required when shipping address is different from billing</small>
+      </div>
+
+      <div class="form-group">
+        <label for="country">Country</label>
+        <select id="country" name="country">
+          <option value="US">United States</option>
+          <option value="CA">Canada</option>
+          <option value="UK">United Kingdom</option>
+          <option value="FR">France</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="state">State/Province</label>
+        <input
+          type="text"
+          id="state"
+          name="state"
+          data-validate="required"
+          data-validate-if="country:US"
+          data-error-msg="State is required for US addresses"
+          placeholder="e.g., California"
+        >
+        <small>Only required for US addresses</small>
+      </div>
+
+      <div class="form-group">
+        <label for="postalCode">Postal Code</label>
+        <input
+          type="text"
+          id="postalCode"
+          name="postalCode"
+          data-validate="required|pattern:[A-Z][0-9][A-Z] [0-9][A-Z][0-9]"
+          data-validate-if="country:CA"
+          data-error-msg="Canadian postal code required (format: A1A 1A1)"
+          placeholder="A1A 1A1"
+        >
+        <small>Only required for Canadian addresses</small>
+      </div>
+
+      <button type="submit" class="btn">Validate Conditional Fields</button>
+    </form>
+  </div>
+
+  <div class="demo-section">
+    <h2>4. Group Validation</h2>
+    <p>Validate related fields as groups using data-validate-group.</p>
+
+    <form id="groupForm">
+      <fieldset class="form-group">
+        <legend>Personal Information</legend>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="firstName">First Name</label>
+            <input
+              type="text"
+              id="firstName"
+              name="firstName"
+              data-validate="required|min:2"
+              data-validate-group="personal"
+              data-error-msg="First name must be at least 2 characters"
+            >
+          </div>
+          <div class="form-field">
+            <label for="lastName">Last Name</label>
+            <input
+              type="text"
+              id="lastName"
+              name="lastName"
+              data-validate="required|min:2"
+              data-validate-group="personal"
+              data-error-msg="Last name must be at least 2 characters"
+            >
+          </div>
+        </div>
+        <button type="button" class="btn btn-secondary" onclick="validatePersonalGroup()">
+          Validate Personal Info Only
+        </button>
+      </fieldset>
+
+      <fieldset class="form-group">
+        <legend>Address Information</legend>
+        <div class="form-field">
+          <label for="street">Street Address</label>
+          <input
+            type="text"
+            id="street"
+            name="street"
+            data-validate="required|min:5"
+            data-validate-group="address"
+            data-error-msg="Street address must be at least 5 characters"
+          >
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="city">City</label>
+            <input
+              type="text"
+              id="city"
+              name="city"
+              data-validate="required|min:2"
+              data-validate-group="address"
+              data-error-msg="City must be at least 2 characters"
+            >
+          </div>
+          <div class="form-field">
+            <label for="zipCode">ZIP Code</label>
+            <input
+              type="text"
+              id="zipCode"
+              name="zipCode"
+              data-validate="required|pattern:[0-9]{5}"
+              data-validate-group="address"
+              data-error-msg="ZIP code must be 5 digits"
+              placeholder="12345"
+            >
+          </div>
+        </div>
+        <button type="button" class="btn btn-secondary" onclick="validateAddressGroup()">
+          Validate Address Only
+        </button>
+      </fieldset>
+
+      <div class="form-group">
+        <label for="contactEmail">Contact Email</label>
+        <input
+          type="email"
+          id="contactEmail"
+          name="contactEmail"
+          data-validate="required|email"
+          data-error-msg="Valid email address is required"
+        >
+        <small>This field is not part of any group</small>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" onclick="validateAllGroups()">
+          Validate All Groups
+        </button>
+        <button type="submit" class="btn">Submit Form</button>
+      </div>
+
+      <div id="groupValidationResults" class="validation-results" style="display: none;">
+        <h4>Group Validation Results:</h4>
+        <div id="groupResults"></div>
+      </div>
+    </form>
+  </div>
+
+  <div class="demo-section">
+    <h2>5. Internationalization (i18n)</h2>
+    <p>Multi-language support with automatic error message translation.</p>
+
+    <div class="form-group">
+      <label for="languageSelect">Select Language:</label>
+      <select id="languageSelect" onchange="changeLanguage(this.value)">
+        <option value="en">English</option>
+        <option value="es">Español</option>
+        <option value="fr">Français</option>
+        <option value="de">Deutsch</option>
+      </select>
+    </div>
+
+    <form id="i18nForm">
+      <div class="form-group">
+        <label for="i18nName">Name</label>
+        <input
+          type="text"
+          id="i18nName"
+          name="i18nName"
+          data-validate="required|min:2"
+          data-error-msg=""
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="i18nEmail">Email</label>
+        <input
+          type="email"
+          id="i18nEmail"
+          name="i18nEmail"
+          data-validate="required|email"
+          data-error-msg=""
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="i18nAge">Age</label>
+        <input
+          type="number"
+          id="i18nAge"
+          name="i18nAge"
+          data-validate="required|min:18|max:120"
+          data-error-msg=""
+          min="1"
+          max="150"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="i18nPassword">Password</label>
+        <input
+          type="password"
+          id="i18nPassword"
+          name="i18nPassword"
+          data-validate="required|min:8"
+          data-error-msg=""
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="i18nConfirmPassword">Confirm Password</label>
+        <input
+          type="password"
+          id="i18nConfirmPassword"
+          name="i18nConfirmPassword"
+          data-validate="required|match:i18nPassword"
+          data-error-msg=""
+        >
+      </div>
+
+      <div class="form-group">
+        <label>
+          <input
+            type="checkbox"
+            name="i18nTerms"
+            data-validate="required"
+            data-error-msg=""
+          >
+          I agree to the terms and conditions
+        </label>
+      </div>
+
+      <button type="submit" class="btn">Submit Form</button>
+    </form>
+
+    <div id="i18nStatus" class="status-display" style="display: none;">
+      <p id="i18nStatusText"></p>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <h2>6. Custom Validators</h2>
+    <p>Using custom validation rules for specific business logic.</p>
+    
+    <form id="customValidatorForm">
+      <div class="form-group">
+        <label for="strongPassword">Strong Password</label>
+        <input 
+          type="password" 
+          id="strongPassword" 
+          name="strongPassword"
+          data-validate="required|strongPassword"
+          data-error-msg="Password must meet security requirements"
+        >
+        <small>Must contain: uppercase, lowercase, number, special character, min 8 chars</small>
+      </div>
+      
+      <div class="form-group">
+        <label for="businessHours">Business Hours</label>
+        <input 
+          type="time" 
+          id="businessHours" 
+          name="businessHours"
+          data-validate="required|businessHours"
+          data-error-msg="Time must be during business hours (9 AM - 5 PM)"
+        >
+      </div>
+      
+      <div class="form-group">
+        <label for="productCode">Product Code</label>
+        <input 
+          type="text" 
+          id="productCode" 
+          name="productCode"
+          data-validate="required|productCode"
+          data-error-msg="Product code must be in format: ABC-1234"
+          placeholder="ABC-1234"
+        >
+      </div>
+      
+      <button type="submit" class="btn">Validate Custom Rules</button>
+    </form>
+  </div>
+  
+  <div class="demo-section">
+    <h2>4. Dynamic Form Fields</h2>
+    <p>Adding and removing fields dynamically with validation.</p>
+    
+    <form id="dynamicForm">
+      <div class="form-group">
+        <label for="primaryEmail">Primary Email</label>
+        <input 
+          type="email" 
+          id="primaryEmail" 
+          name="primaryEmail"
+          data-validate="required|email"
+          data-error-msg="Primary email is required and must be valid"
+        >
+      </div>
+      
+      <div id="additionalEmails">
+        <!-- Dynamic email fields will be added here -->
+      </div>
+      
+      <button type="button" onclick="addEmailField()" class="btn btn-secondary">Add Another Email</button>
+      <button type="submit" class="btn">Submit</button>
+    </form>
+  </div>
+  
+  <div class="demo-section">
+    <h2>5. Validation Events & Status</h2>
+    <div id="validationStatus" class="status-display">
+      Validation events will appear here...
+    </div>
+    
+    <div id="errorSummary" class="error-summary">
+      <h4>Validation Errors:</h4>
+      <ul id="errorList"></ul>
+    </div>
+  </div>
+  
+  <!-- FormGuard Library -->
+  <script type="module">
+    import { FormGuard } from '../dist/formguard.esm.js';
+    
+    // Add custom validators
+    FormGuard.addValidator('strongPassword', (value) => {
+      if (!value) return true; // Allow empty unless required
+      
+      const hasUpperCase = /[A-Z]/.test(value);
+      const hasLowerCase = /[a-z]/.test(value);
+      const hasNumbers = /\d/.test(value);
+      const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value);
+      const isLongEnough = value.length >= 8;
+      
+      if (!hasUpperCase) return 'Password must contain an uppercase letter';
+      if (!hasLowerCase) return 'Password must contain a lowercase letter';
+      if (!hasNumbers) return 'Password must contain a number';
+      if (!hasSpecialChar) return 'Password must contain a special character';
+      if (!isLongEnough) return 'Password must be at least 8 characters long';
+      
+      return true;
+    });
+    
+    FormGuard.addValidator('businessHours', (value) => {
+      if (!value) return true;
+      
+      const [hours, minutes] = value.split(':').map(Number);
+      const totalMinutes = hours * 60 + minutes;
+      const startTime = 9 * 60; // 9 AM
+      const endTime = 17 * 60;  // 5 PM
+      
+      return (totalMinutes >= startTime && totalMinutes <= endTime) || 
+             'Time must be between 9:00 AM and 5:00 PM';
+    });
+    
+    FormGuard.addValidator('productCode', (value) => {
+      if (!value) return true;
+      
+      const pattern = /^[A-Z]{3}-\d{4}$/;
+      return pattern.test(value) || 'Product code must be in format ABC-1234';
+    });
+    
+    // Simulate async username validation
+    FormGuard.addValidator('checkUsername', async (value) => {
+      if (!value) return true;
+
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const takenUsernames = ['admin', 'user', 'test'];
+      return !takenUsernames.includes(value.toLowerCase()) || 'Username is already taken';
+    });
+
+    // Override the unique validator for demo purposes
+    FormGuard.addValidator('unique', async (value, params, field) => {
+      if (!value) return true;
+
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      // Simulate different responses based on field type
+      if (field.name === 'username') {
+        const takenUsernames = ['admin', 'user', 'test', 'demo'];
+        return !takenUsernames.includes(value.toLowerCase()) || 'Username is already taken';
+      } else if (field.name === 'email') {
+        const takenEmails = ['admin@example.com', 'user@test.com', 'demo@site.com'];
+        return !takenEmails.includes(value.toLowerCase()) || 'Email address is already registered';
+      }
+
+      // Default behavior for other fields
+      return Math.random() > 0.3 || 'This value is already taken';
+    });
+    
+    // Initialize forms
+    const conditionalForm = new FormGuard(document.getElementById('conditionalForm'));
+
+    const asyncForm = new FormGuard(document.getElementById('asyncForm'));
+
+    const groupForm = new FormGuard(document.getElementById('groupForm'));
+
+    const i18nForm = new FormGuard(document.getElementById('i18nForm'));
+    
+    const customValidatorForm = new FormGuard(document.getElementById('customValidatorForm'));
+    const dynamicForm = new FormGuard(document.getElementById('dynamicForm'));
+    
+    // Handle conditional field visibility
+    document.getElementById('hasCompany').addEventListener('change', (e) => {
+      const companyFields = document.getElementById('companyFields');
+      companyFields.style.display = e.target.checked ? 'block' : 'none';
+    });
+    
+    document.getElementById('needsShipping').addEventListener('change', (e) => {
+      const shippingFields = document.getElementById('shippingFields');
+      shippingFields.style.display = e.target.checked ? 'block' : 'none';
+    });
+
+    // Handle conditional validation form changes
+    const shippingSameCheckbox = document.querySelector('[name="shippingSame"]');
+    const countrySelect = document.querySelector('[name="country"]');
+
+    if (shippingSameCheckbox) {
+      shippingSameCheckbox.addEventListener('change', () => {
+        // Re-validate shipping address field when condition changes
+        const shippingAddressField = document.querySelector('[name="shippingAddress"]');
+        if (shippingAddressField) {
+          conditionalForm.validateField(shippingAddressField);
+        }
+      });
+    }
+
+    if (countrySelect) {
+      countrySelect.addEventListener('change', () => {
+        // Re-validate conditional fields when country changes
+        const stateField = document.querySelector('[name="state"]');
+        const postalCodeField = document.querySelector('[name="postalCode"]');
+
+        if (stateField) conditionalForm.validateField(stateField);
+        if (postalCodeField) conditionalForm.validateField(postalCodeField);
+      });
+    }
+
+    // Group validation event listeners
+    if (groupForm) {
+      groupForm.form.addEventListener('formguard:group-validated', (e) => {
+        displayGroupValidationResult(e.detail);
+      });
+    }
+
+    // Group validation functions
+    window.validatePersonalGroup = async function() {
+      const isValid = await groupForm.validateGroup('personal');
+      const errors = groupForm.getGroupErrors('personal');
+      displayGroupValidationResult({
+        groupName: 'personal',
+        isValid,
+        errors
+      });
+    };
+
+    window.validateAddressGroup = async function() {
+      const isValid = await groupForm.validateGroup('address');
+      const errors = groupForm.getGroupErrors('address');
+      displayGroupValidationResult({
+        groupName: 'address',
+        isValid,
+        errors
+      });
+    };
+
+    window.validateAllGroups = async function() {
+      const isValid = await groupForm.validateAllGroups();
+      const allGroups = groupForm.getValidationGroups();
+      const results = {};
+
+      Object.keys(allGroups).forEach(groupName => {
+        results[groupName] = {
+          isValid: Object.keys(groupForm.getGroupErrors(groupName)).length === 0,
+          errors: groupForm.getGroupErrors(groupName)
+        };
+      });
+
+      displayAllGroupResults(results, isValid);
+    };
+
+    function displayGroupValidationResult(detail) {
+      const resultsDiv = document.getElementById('groupValidationResults');
+      const resultsContent = document.getElementById('groupResults');
+
+      const errorCount = Object.keys(detail.errors || {}).length;
+      const statusClass = detail.isValid ? 'success' : 'error';
+      const statusText = detail.isValid ? 'Valid' : `${errorCount} error(s)`;
+
+      resultsContent.innerHTML = `
+        <div class="group-result ${statusClass}">
+          <strong>${detail.groupName} Group:</strong> ${statusText}
+          ${errorCount > 0 ? `
+            <ul>
+              ${Object.entries(detail.errors).map(([field, message]) =>
+                `<li>${field}: ${message}</li>`
+              ).join('')}
+            </ul>
+          ` : ''}
+        </div>
+      `;
+
+      resultsDiv.style.display = 'block';
+    }
+
+    function displayAllGroupResults(results, overallValid) {
+      const resultsDiv = document.getElementById('groupValidationResults');
+      const resultsContent = document.getElementById('groupResults');
+
+      const groupsHtml = Object.entries(results).map(([groupName, result]) => {
+        const errorCount = Object.keys(result.errors).length;
+        const statusClass = result.isValid ? 'success' : 'error';
+        const statusText = result.isValid ? 'Valid' : `${errorCount} error(s)`;
+
+        return `
+          <div class="group-result ${statusClass}">
+            <strong>${groupName} Group:</strong> ${statusText}
+            ${errorCount > 0 ? `
+              <ul>
+                ${Object.entries(result.errors).map(([field, message]) =>
+                  `<li>${field}: ${message}</li>`
+                ).join('')}
+              </ul>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+
+      resultsContent.innerHTML = `
+        <div class="overall-result ${overallValid ? 'success' : 'error'}">
+          <strong>Overall Result:</strong> ${overallValid ? 'All groups valid' : 'Some groups have errors'}
+        </div>
+        ${groupsHtml}
+      `;
+
+      resultsDiv.style.display = 'block';
+    }
+
+    // Language change function for i18n demo
+    window.changeLanguage = function(language) {
+      if (i18nForm) {
+        i18nForm.setLanguage(language);
+
+        // Clear existing errors and re-validate to show new language
+        const fields = i18nForm.form.querySelectorAll('[data-validate]');
+        fields.forEach(field => {
+          i18nForm.clearFieldError(field);
+          if (field.value) {
+            i18nForm.validateField(field);
+          }
+        });
+
+        // Update status message
+        const statusDiv = document.getElementById('i18nStatus');
+        const statusText = document.getElementById('i18nStatusText');
+
+        const messages = {
+          en: 'Language changed to English. Try submitting the form to see error messages.',
+          es: 'Idioma cambiado a español. Intenta enviar el formulario para ver los mensajes de error.',
+          fr: 'Langue changée en français. Essayez de soumettre le formulaire pour voir les messages d\'erreur.',
+          de: 'Sprache auf Deutsch geändert. Versuchen Sie, das Formular zu senden, um Fehlermeldungen zu sehen.'
+        };
+
+        statusText.textContent = messages[language] || messages.en;
+        statusDiv.style.display = 'block';
+
+        setTimeout(() => {
+          statusDiv.style.display = 'none';
+        }, 5000);
+      }
+    };
+
+    // Add async validation to username field
+    const usernameField = document.getElementById('username');
+    if (usernameField) {
+      // Add checkUsername validation programmatically
+      const existingValidation = usernameField.getAttribute('data-validate');
+      usernameField.setAttribute('data-validate', existingValidation + '|checkUsername');
+    }
+    
+    // Dynamic email field management
+    let emailFieldCount = 0;
+    
+    window.addEmailField = () => {
+      emailFieldCount++;
+      const container = document.getElementById('additionalEmails');
+      
+      const fieldHtml = `
+        <div class="form-group" id="emailGroup${emailFieldCount}">
+          <label for="email${emailFieldCount}">Additional Email ${emailFieldCount}</label>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <input 
+              type="email" 
+              id="email${emailFieldCount}" 
+              name="email${emailFieldCount}"
+              data-validate="email"
+              data-error-msg="Please enter a valid email address"
+              style="flex: 1;"
+            >
+            <button type="button" onclick="removeEmailField(${emailFieldCount})" class="btn btn-secondary">Remove</button>
+          </div>
+        </div>
+      `;
+      
+      container.insertAdjacentHTML('beforeend', fieldHtml);
+    };
+    
+    window.removeEmailField = (id) => {
+      const fieldGroup = document.getElementById(`emailGroup${id}`);
+      if (fieldGroup) {
+        fieldGroup.remove();
+      }
+    };
+    
+    // Event logging
+    const statusDisplay = document.getElementById('validationStatus');
+    const errorSummary = document.getElementById('errorSummary');
+    const errorList = document.getElementById('errorList');
+    
+    function logEvent(message) {
+      statusDisplay.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+    }
+    
+    function updateErrorSummary(errors) {
+      const hasErrors = Object.keys(errors).length > 0;
+      
+      if (hasErrors) {
+        errorList.innerHTML = Object.entries(errors)
+          .map(([field, message]) => `<li><strong>${field}:</strong> ${message}</li>`)
+          .join('');
+        errorSummary.classList.add('show');
+      } else {
+        errorSummary.classList.remove('show');
+      }
+    }
+    
+    // Add event listeners to all forms
+    [conditionalForm, asyncForm, customValidatorForm, dynamicForm].forEach((formGuard, index) => {
+      const formNames = ['Conditional', 'Async', 'Custom Validator', 'Dynamic'];
+      const formName = formNames[index];
+      
+      formGuard.form.addEventListener('formguard:valid', (event) => {
+        logEvent(`${formName} Form: Field "${event.detail.field.name}" is valid`);
+      });
+      
+      formGuard.form.addEventListener('formguard:invalid', (event) => {
+        logEvent(`${formName} Form: Field "${event.detail.field.name}" is invalid`);
+      });
+      
+      formGuard.form.addEventListener('formguard:submit', (event) => {
+        const { valid, errors } = event.detail;
+        logEvent(`${formName} Form: Submit attempted - ${valid ? 'Valid' : 'Invalid'}`);
+        updateErrorSummary(errors);
+        
+        if (valid) {
+          alert(`${formName} form is valid! Would submit in real application.`);
+        }
+      });
+    });
+    
+    // Demo functions
+    window.validateAllForms = async () => {
+      const results = await Promise.all([
+        conditionalForm.validate(),
+        asyncForm.validate(),
+        customValidatorForm.validate(),
+        dynamicForm.validate()
+      ]);
+      
+      const validCount = results.filter(Boolean).length;
+      alert(`${validCount} out of ${results.length} forms are valid`);
+    };
+    
+    window.resetAllForms = () => {
+      [conditionalForm, asyncForm, customValidatorForm, dynamicForm].forEach(form => form.reset());
+      logEvent('All forms reset');
+      updateErrorSummary({});
+    };
+  </script>
+  
+  <div class="demo-section">
+    <h2>Demo Actions</h2>
+    <button onclick="validateAllForms()" class="btn">Validate All Forms</button>
+    <button onclick="resetAllForms()" class="btn btn-secondary">Reset All Forms</button>
+  </div>
+  
+  <div class="demo-section">
+    <h2>Advanced Features Demonstrated</h2>
+    <ul>
+      <li><strong>Conditional Validation</strong> - Fields validated only when conditions are met</li>
+      <li><strong>Async Validation</strong> - Server-side validation with loading states</li>
+      <li><strong>Custom Validators</strong> - Business-specific validation logic</li>
+      <li><strong>Dynamic Fields</strong> - Adding/removing fields with automatic validation</li>
+      <li><strong>Event Handling</strong> - Real-time validation status updates</li>
+      <li><strong>Debouncing</strong> - Preventing excessive API calls during typing</li>
+      <li><strong>Error Aggregation</strong> - Collecting and displaying all form errors</li>
+      <li><strong>Programmatic Control</strong> - Manual validation triggering</li>
+    </ul>
+  </div>
+</body>
+</html>

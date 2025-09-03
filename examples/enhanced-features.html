@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FormGuard Enhanced Features Demo - 2025</title>
+    <style>
+        /* Modern CSS with enhanced accessibility features */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        h1, h2 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        
+        .demo-section {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        
+        /* Enhanced form styling with WCAG 2.2 compliance */
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #495057;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box;
+            min-height: 44px; /* WCAG 2.2 target size */
+        }
+        
+        /* Enhanced focus indicators for WCAG 2.2 */
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: 2px solid #007bff;
+            outline-offset: 2px;
+            border-color: #007bff;
+        }
+        
+        /* High contrast mode support */
+        @media (forced-colors: active) {
+            input:focus,
+            select:focus,
+            textarea:focus {
+                outline: 2px solid ButtonText;
+            }
+        }
+        
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        
+        /* Error message styling with responsive placement */
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 0.25rem;
+            padding: 8px 12px;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.2s ease-out;
+        }
+        
+        .error-message.show {
+            opacity: 1;
+            max-height: 100px;
+        }
+        
+        /* Responsive error placement */
+        .error-placement-below {
+            display: block;
+            margin-top: 0.5rem;
+        }
+        
+        .error-placement-inline {
+            display: inline-block;
+            margin-left: 0.5rem;
+            margin-top: 0;
+        }
+        
+        .error-placement-right {
+            position: absolute;
+            left: calc(100% + 1rem);
+            top: 0;
+            width: 200px;
+            margin-top: 0;
+        }
+        
+        /* Field state styling */
+        .error {
+            border-color: #dc3545 !important;
+            background-color: #fff5f5;
+        }
+        
+        .valid {
+            border-color: #28a745 !important;
+            background-color: #f5fff5;
+        }
+        
+        /* Button styling with proper target size */
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            min-height: 44px;
+            min-width: 44px;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: background-color 0.2s;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        button:focus {
+            outline: 2px solid #007bff;
+            outline-offset: 2px;
+        }
+        
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        /* Loading states */
+        .loading {
+            position: relative;
+            pointer-events: none;
+        }
+        
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Multi-step form styling */
+        .step {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        .step.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        
+        .step-indicator .step-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ddd;
+            margin: 0 8px;
+            transition: background-color 0.2s;
+        }
+        
+        .step-indicator .step-dot.active {
+            background: #007bff;
+        }
+        
+        .step-indicator .step-dot.completed {
+            background: #28a745;
+        }
+        
+        /* Accessibility helpers */
+        .sr-only {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+            white-space: nowrap !important;
+            border: 0 !important;
+        }
+        
+        /* Live region for announcements */
+        #formguard-live-region {
+            position: absolute;
+            left: -9999px;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
+        
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .error-placement-right {
+                position: static;
+                width: 100%;
+                margin-top: 0.5rem;
+            }
+            
+            input, select, textarea {
+                font-size: 16px; /* Prevent zoom on iOS */
+            }
+        }
+        
+        /* File upload styling */
+        .file-upload {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            transition: border-color 0.2s;
+        }
+        
+        .file-upload.dragover {
+            border-color: #007bff;
+            background: #f8f9fa;
+        }
+        
+        .file-upload input[type="file"] {
+            display: none;
+        }
+        
+        .file-upload label {
+            display: block;
+            cursor: pointer;
+            padding: 1rem;
+            background: #007bff;
+            color: white;
+            border-radius: 4px;
+            margin: 0 auto;
+            width: fit-content;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>FormGuard Enhanced Features Demo (2025)</h1>
+        <p>Demonstration of FormGuard enhanced with modern web APIs including Constraint Validation API, IntersectionObserver, ResizeObserver, Web Animations API, and WCAG 2.2 compliance features.</p>
+        
+        <!-- Basic Enhanced Validation Demo -->
+        <section class="demo-section">
+            <h2>1. Enhanced Validation with Modern APIs</h2>
+            <form id="enhanced-form" data-enhanced-formguard>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        data-validate="required|email" 
+                        data-error-required="Email is required"
+                        data-error-type="Please enter a valid email format"
+                        autocomplete="email"
+                        aria-describedby="email-help"
+                    >
+                    <small id="email-help" class="form-text">We'll never share your email with anyone else.</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input 
+                        type="tel" 
+                        id="phone" 
+                        name="phone" 
+                        data-validate="required|phone" 
+                        pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+                        data-error-pattern="Phone must be in format: 123-456-7890"
+                        placeholder="123-456-7890"
+                        autocomplete="tel"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        data-validate="required|min:8" 
+                        minlength="8"
+                        data-error-minlength="Password must be at least 8 characters"
+                        autocomplete="new-password"
+                    >
+                </div>
+                
+                <button type="submit">Submit Enhanced Form</button>
+            </form>
+        </section>
+        
+        <!-- Lazy Validation Demo -->
+        <section class="demo-section">
+            <h2>2. Lazy Validation with IntersectionObserver</h2>
+            <p>The following form demonstrates lazy validation - fields below the fold are only validated when they come into view, improving performance for long forms.</p>
+            
+            <form id="lazy-form" data-enhanced-formguard>
+                <!-- Spacer to push fields below fold -->
+                <div style="height: 100vh; display: flex; align-items: center; justify-content: center; background: #f8f9fa; margin-bottom: 2rem;">
+                    <p>Scroll down to see lazy-loaded validation fields</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="lazy-field-1">Lazy Validated Field 1</label>
+                    <input 
+                        type="text" 
+                        id="lazy-field-1" 
+                        name="lazyField1" 
+                        data-validate="required|min:5" 
+                        placeholder="This field uses lazy validation"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="lazy-field-2">Lazy Validated Field 2</label>
+                    <input 
+                        type="email" 
+                        id="lazy-field-2" 
+                        name="lazyField2" 
+                        data-validate="required|email" 
+                        placeholder="Another lazy validated field"
+                    >
+                </div>
+                
+                <button type="submit">Submit Lazy Form</button>
+            </form>
+        </section>
+        
+        <!-- Multi-step Form with View Transitions -->
+        <section class="demo-section">
+            <h2>3. Multi-step Form with View Transitions</h2>
+            <p>Demonstrates smooth transitions between form steps using the View Transition API.</p>
+            
+            <form id="multistep-form" data-enhanced-formguard>
+                <div class="step-indicator">
+                    <div class="step-dot active" data-step="1"></div>
+                    <div class="step-dot" data-step="2"></div>
+                    <div class="step-dot" data-step="3"></div>
+                </div>
+                
+                <div class="step active" id="step1">
+                    <h3>Step 1: Personal Information</h3>
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <input type="text" id="firstName" name="firstName" data-validate="required|min:2" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <input type="text" id="lastName" name="lastName" data-validate="required|min:2" required>
+                    </div>
+                    <button type="button" id="next1">Next Step</button>
+                </div>
+                
+                <div class="step" id="step2">
+                    <h3>Step 2: Contact Details</h3>
+                    <div class="form-group">
+                        <label for="step2Email">Email</label>
+                        <input type="email" id="step2Email" name="step2Email" data-validate="required|email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="step2Phone">Phone</label>
+                        <input type="tel" id="step2Phone" name="step2Phone" data-validate="required|phone" required>
+                    </div>
+                    <button type="button" id="prev1">Previous</button>
+                    <button type="button" id="next2">Next Step</button>
+                </div>
+                
+                <div class="step" id="step3">
+                    <h3>Step 3: Confirmation</h3>
+                    <div class="form-group">
+                        <input type="checkbox" id="terms" name="terms" data-validate="required">
+                        <label for="terms">I agree to the terms and conditions</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="checkbox" id="newsletter" name="newsletter">
+                        <label for="newsletter">Subscribe to newsletter</label>
+                    </div>
+                    <button type="button" id="prev2">Previous</button>
+                    <button type="submit">Complete Registration</button>
+                </div>
+            </form>
+        </section>
+        
+        <!-- File Upload with Enhanced Validation -->
+        <section class="demo-section">
+            <h2>4. File Upload with Enhanced Validation</h2>
+            <form id="file-form" data-enhanced-formguard>
+                <div class="form-group">
+                    <label>Profile Picture</label>
+                    <div class="file-upload">
+                        <input type="file" id="profilePic" name="profilePic" accept="image/*" data-validate="required">
+                        <label for="profilePic">Choose Image File</label>
+                        <p>Drag and drop an image file here, or click to select</p>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Documents (Max 3 files, 5MB each)</label>
+                    <div class="file-upload">
+                        <input type="file" id="documents" name="documents" multiple accept=".pdf,.doc,.docx" data-validate="required">
+                        <label for="documents">Choose Document Files</label>
+                        <p>Select up to 3 document files</p>
+                    </div>
+                </div>
+                
+                <button type="submit">Upload Files</button>
+            </form>
+        </section>
+        
+        <!-- Accessibility Features Demo -->
+        <section class="demo-section">
+            <h2>5. WCAG 2.2 Compliance Features</h2>
+            <form id="accessibility-form" data-enhanced-formguard>
+                <div class="form-group">
+                    <label for="accessibleInput">Standard Input (24x24px minimum touch target)</label>
+                    <input type="text" id="accessibleInput" name="accessibleInput" data-validate="required" aria-describedby="accessible-help">
+                    <div id="accessible-help" class="sr-only">This field demonstrates enhanced focus indicators</div>
+                </div>
+                
+                <fieldset>
+                    <legend>Radio Options (Enhanced Target Size)</legend>
+                    <div>
+                        <input type="radio" id="option1" name="radioOption" value="1" data-validate="required">
+                        <label for="option1">Option 1</label>
+                    </div>
+                    <div>
+                        <input type="radio" id="option2" name="radioOption" value="2">
+                        <label for="option2">Option 2</label>
+                    </div>
+                    <div>
+                        <input type="radio" id="option3" name="radioOption" value="3">
+                        <label for="option3">Option 3</label>
+                    </div>
+                </fieldset>
+                
+                <div class="form-group">
+                    <label for="dragExample">Draggable Element with Keyboard Alternative</label>
+                    <div 
+                        id="dragExample" 
+                        draggable="true" 
+                        tabindex="0" 
+                        role="button" 
+                        aria-describedby="drag-help"
+                        style="padding: 1rem; border: 2px dashed #ccc; background: #f9f9f9; cursor: move;"
+                    >
+                        Drag me or press Enter to activate
+                        <button class="drag-alternative" style="margin-left: 1rem;" aria-label="Alternative to dragging">Alternative Action</button>
+                    </div>
+                    <div id="drag-help" class="sr-only">Use Enter key or click the Alternative Action button instead of dragging</div>
+                </div>
+                
+                <button type="submit">Submit Accessible Form</button>
+            </form>
+        </section>
+    </div>
+    
+    <!-- Live region for screen reader announcements -->
+    <div id="formguard-live-region" aria-live="polite" aria-atomic="true"></div>
+    
+    <!-- Scripts -->
+    <script type="module">
+        // Import FormGuard from built version (EnhancedFormGuard is not in the main build)
+        import { FormGuard } from '../dist/formguard.esm.js';
+        
+        // Auto-initialize all forms with FormGuard
+        const instances = FormGuard.auto('[data-formguard-auto]');
+        
+        // Multi-step form logic with View Transitions
+        const multistepForm = document.getElementById('multistep-form');
+        let currentStep = 1;
+        let formGuardInstance = null;
+        
+        // Find the FormGuard instance for the multistep form
+        instances.forEach(instance => {
+            if (instance.form === multistepForm) {
+                formGuardInstance = instance;
+            }
+        });
+        
+        function updateStepIndicators() {
+            document.querySelectorAll('.step-dot').forEach((dot, index) => {
+                dot.classList.remove('active', 'completed');
+                if (index + 1 === currentStep) {
+                    dot.classList.add('active');
+                } else if (index + 1 < currentStep) {
+                    dot.classList.add('completed');
+                }
+            });
+        }
+        
+        async function showStep(stepNumber) {
+            const currentStepEl = document.querySelector('.step.active');
+            const targetStepEl = document.getElementById(`step${stepNumber}`);
+            
+            if (document.startViewTransition) {
+                // Use View Transition API for smooth transitions
+                const transition = document.startViewTransition(() => {
+                    currentStepEl.classList.remove('active');
+                    targetStepEl.classList.add('active');
+                });
+                
+                await transition.finished;
+            } else {
+                // Fallback without view transitions
+                currentStepEl.classList.remove('active');
+                targetStepEl.classList.add('active');
+            }
+            
+            currentStep = stepNumber;
+            updateStepIndicators();
+        }
+        
+        // Step navigation
+        document.getElementById('next1').addEventListener('click', async () => {
+            // Validate current step before proceeding
+            const step1Fields = ['firstName', 'lastName'];
+            let allValid = true;
+            
+            for (const fieldName of step1Fields) {
+                const isValid = await formGuardInstance.validate(fieldName);
+                if (!isValid) allValid = false;
+            }
+            
+            if (allValid) {
+                await showStep(2);
+            }
+        });
+        
+        document.getElementById('next2').addEventListener('click', async () => {
+            const step2Fields = ['step2Email', 'step2Phone'];
+            let allValid = true;
+            
+            for (const fieldName of step2Fields) {
+                const isValid = await formGuardInstance.validate(fieldName);
+                if (!isValid) allValid = false;
+            }
+            
+            if (allValid) {
+                await showStep(3);
+            }
+        });
+        
+        document.getElementById('prev1').addEventListener('click', () => showStep(1));
+        document.getElementById('prev2').addEventListener('click', () => showStep(2));
+        
+        // File upload enhancements
+        document.querySelectorAll('.file-upload').forEach(uploadArea => {
+            const input = uploadArea.querySelector('input[type="file"]');
+            const label = uploadArea.querySelector('label');
+            
+            // Drag and drop
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    input.files = files;
+                    input.dispatchEvent(new Event('change'));
+                }
+            });
+            
+            // Update label with file names
+            input.addEventListener('change', () => {
+                const fileNames = Array.from(input.files).map(file => file.name);
+                if (fileNames.length > 0) {
+                    label.textContent = fileNames.join(', ');
+                } else {
+                    label.textContent = label.dataset.originalText || label.textContent;
+                }
+            });
+            
+            // Store original label text
+            label.dataset.originalText = label.textContent;
+        });
+        
+        // Demonstration of real-time features
+        console.log('Enhanced FormGuard instances initialized:', instances);
+        console.log('Available modern APIs:', {
+            ConstraintValidation: 'validity' in document.createElement('input'),
+            IntersectionObserver: 'IntersectionObserver' in window,
+            ResizeObserver: 'ResizeObserver' in window,
+            WebAnimations: 'animate' in document.createElement('div'),
+            ViewTransitions: 'startViewTransition' in document
+        });
+    </script>
+</body>
+</html>

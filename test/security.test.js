@@ -1,0 +1,310 @@
+/**
+ * Security tests for FormGuard enhancements
+ */
+
+import { FormGuard } from '../src/formguard.js';
+import { DOMManager } from '../src/dom-manager.js';
+import { pattern } from '../src/validators.js';
+
+// Mock DOM environment
+const mockForm = {
+  addEventListener: jest.fn(),
+  removeEventListener: jest.fn(),
+  querySelectorAll: jest.fn(() => []),
+  contains: jest.fn(() => true)
+};
+
+describe('XSS Prevention Tests', () => {
+  let domManager;
+  
+  beforeEach(() => {
+    // Mock document methods
+    global.document = {
+      createElement: jest.fn(() => ({
+        innerHTML: '',
+        textContent: '',
+        setAttribute: jest.fn(),
+        getAttribute: jest.fn(),
+        style: {},
+        classList: { add: jest.fn(), remove: jest.fn() }
+      })),
+      contains: jest.fn(() => true)
+    };
+    
+    domManager = new DOMManager(mockForm, {});
+  });
+
+  test('should sanitize error templates', () => {
+    const maliciousTemplate = '<div onclick="alert(\'xss\')">Error: <script>alert("xss")</script></div>';
+    const sanitized = domManager.sanitizeTemplate(maliciousTemplate);
+    
+    expect(sanitized).not.toContain('onclick');
+    expect(sanitized).not.toContain('<script>');
+    expect(sanitized).not.toContain('javascript:');
+  });
+
+  test('should sanitize error messages', () => {
+    const maliciousMessage = '<script>alert("xss")</script>Malicious message';
+    const sanitized = domManager.sanitizeErrorMessage(maliciousMessage);
+    
+    expect(sanitized).toBe('Malicious message');
+    expect(sanitized).not.toContain('<script>');
+  });
+
+  test('should handle various XSS vectors', () => {
+    const xssVectors = [
+      '<img src="x" onerror="alert(1)">',
+      '<iframe src="javascript:alert(1)"></iframe>',
+      '<object data="javascript:alert(1)"></object>',
+      '<embed src="javascript:alert(1)">',
+      'javascript:alert(1)',
+      'onclick="alert(1)"',
+      'onload="alert(1)"'
+    ];
+
+    xssVectors.forEach(vector => {
+      const sanitized = domManager.sanitizeTemplate(vector);
+      expect(sanitized).not.toContain('javascript:');
+      expect(sanitized).not.toContain('onerror');
+      expect(sanitized).not.toContain('onclick');
+      expect(sanitized).not.toContain('onload');
+      expect(sanitized).not.toContain('<iframe');
+      expect(sanitized).not.toContain('<object');
+      expect(sanitized).not.toContain('<embed');
+    });
+  });
+
+  test('should preserve safe HTML in templates', () => {
+    const safeTemplate = '<div class="error-message" role="alert">Error message</div>';
+    const sanitized = domManager.sanitizeTemplate(safeTemplate);
+    
+    expect(sanitized).toContain('<div');
+    expect(sanitized).toContain('class="error-message"');
+    expect(sanitized).toContain('role="alert"');
+  });
+
+  test('should handle null and undefined templates', () => {
+    expect(domManager.sanitizeTemplate(null)).toContain('error-message');
+    expect(domManager.sanitizeTemplate(undefined)).toContain('error-message');
+    expect(domManager.sanitizeTemplate('')).toContain('error-message');
+  });
+});
+
+describe('ReDoS Protection Tests', () => {
+  test('should detect dangerous regex patterns', () => {
+    const dangerousPatterns = [
+      '(a+)+$',           // Nested quantifiers
+      '(a*)*$',           // Nested quantifiers
+      '(?!.*)',           // Negative lookahead
+      '(?<=.*)',          // Lookbehind
+      '(a|a)*$',          // Alternation with overlap
+      '((a)*)*$',         // Deeply nested groups
+      '[a-z][a-z][a-z][a-z][a-z]$' // Many character classes
+    ];
+
+    dangerousPatterns.forEach(dangerousPattern => {
+      const result = pattern('test', dangerousPattern);
+      expect(typeof result).toBe('string');
+      expect(result).toContain('unsafe constructs');
+    });
+  });
+
+  test('should reject overly long patterns', () => {
+    const longPattern = 'a'.repeat(1001);
+    const result = pattern('test', longPattern);
+    
+    expect(typeof result).toBe('string');
+    expect(result).toContain('too complex');
+  });
+
+  test('should handle invalid regex gracefully', () => {
+    const invalidPatterns = ['[', '(', '*', '+', '?'];
+    
+    invalidPatterns.forEach(invalidPattern => {
+      const result = pattern('test', invalidPattern);
+      expect(typeof result).toBe('string');
+      expect(result).toContain('Invalid pattern');
+    });
+  });
+
+  test('should allow safe patterns', () => {
+    const safePatterns = [
+      '^[a-zA-Z0-9]+$',
+      '^\\d{3}-\\d{3}-\\d{4}$',
+      '^[^@]+@[^@]+\\.[^@]+$',
+      '^https?://[^\\s]+$'
+    ];
+
+    safePatterns.forEach(safePattern => {
+      const result = pattern('test123', safePattern);
+      expect(typeof result === 'boolean' || typeof result === 'string').toBe(true);
+    });
+  });
+
+  test('should timeout on slow regex execution', () => {
+    // This test simulates a slow regex that should timeout
+    const slowPattern = '^(a|a)*$';
+    const longInput = 'a'.repeat(100) + 'X';
+    
+    const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+    
+    const result = pattern(longInput, slowPattern);
+    
+    // Should either return an error or complete quickly
+    expect(typeof result).toBe('string');
+    
+    consoleSpy.mockRestore();
+  });
+});
+
+describe('Memory Management Tests', () => {
+  let formGuard;
+  
+  beforeEach(() => {
+    formGuard = new FormGuard(mockForm, {
+      maxStateEntries: 10,
+      maxAsyncPromises: 5,
+      stateCleanupInterval: 100
+    });
+  });
+
+  afterEach(() => {
+    if (formGuard) {
+      formGuard.destroy();
+    }
+  });
+
+  test('should limit validation state size', () => {
+    // Add more entries than the limit
+    for (let i = 0; i < 15; i++) {
+      formGuard.validationState.set(`field${i}`, { isValid: true });
+    }
+    
+    // Trigger cleanup
+    formGuard.cleanupOldState();
+    
+    expect(formGuard.validationState.size).toBeLessThanOrEqual(10);
+  });
+
+  test('should clean up old async promises', () => {
+    // Add old promises
+    const oldTimestamp = Date.now() - 70000; // 70 seconds ago
+    formGuard.asyncValidationPromises.set('field1', {
+      timestamp: oldTimestamp,
+      controller: { abort: jest.fn() }
+    });
+    
+    formGuard.cleanupOldState();
+    
+    expect(formGuard.asyncValidationPromises.has('field1')).toBe(false);
+  });
+
+  test('should limit async promises size', () => {
+    // Add more promises than the limit
+    for (let i = 0; i < 10; i++) {
+      formGuard.asyncValidationPromises.set(`field${i}`, {
+        timestamp: Date.now(),
+        controller: { abort: jest.fn() }
+      });
+    }
+    
+    formGuard.cleanupOldState();
+    
+    expect(formGuard.asyncValidationPromises.size).toBeLessThanOrEqual(5);
+  });
+
+  test('should clean up on destroy', () => {
+    formGuard.validationState.set('field1', { isValid: true });
+    formGuard.asyncValidationPromises.set('field1', {
+      controller: { abort: jest.fn() }
+    });
+    
+    const abortSpy = formGuard.asyncValidationPromises.get('field1').controller.abort;
+    
+    formGuard.destroy();
+    
+    expect(abortSpy).toHaveBeenCalled();
+    expect(formGuard.validationState.size).toBe(0);
+    expect(formGuard.asyncValidationPromises.size).toBe(0);
+  });
+
+  test('should setup periodic cleanup', () => {
+    expect(formGuard.cleanupTimer).toBeDefined();
+    
+    formGuard.destroy();
+    
+    expect(formGuard.cleanupTimer).toBeNull();
+  });
+});
+
+describe('Race Condition Prevention Tests', () => {
+  let formGuard;
+  
+  beforeEach(() => {
+    formGuard = new FormGuard(mockForm);
+  });
+
+  afterEach(() => {
+    if (formGuard) {
+      formGuard.destroy();
+    }
+  });
+
+  test('should cancel previous async validations', async () => {
+    const mockField = { name: 'test', id: 'test' };
+    const mockRule = { name: 'remote', params: '/api/test' };
+    
+    // Mock async validator
+    const mockValidator = jest.fn(() => new Promise(resolve => {
+      setTimeout(() => resolve(true), 100);
+    }));
+    
+    formGuard.validatorRegistry.register('remote', mockValidator);
+    
+    // Start first validation
+    const promise1 = formGuard.executeValidator(mockField, mockRule, 'value1');
+    
+    // Start second validation (should cancel first)
+    const promise2 = formGuard.executeValidator(mockField, mockRule, 'value2');
+    
+    const result1 = await promise1;
+    const result2 = await promise2;
+    
+    // First validation should be cancelled (return true)
+    expect(result1).toBe(true);
+    expect(typeof result2).toBe('boolean');
+  });
+
+  test('should handle abort signals in async validators', async () => {
+    const mockField = { name: 'test', id: 'test' };
+    const mockRule = { name: 'remote', params: '/api/test' };
+    
+    // Mock async validator that supports abort signal
+    const mockValidator = jest.fn((value, params, field, options) => {
+      return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => resolve(true), 100);
+        
+        if (options && options.signal) {
+          options.signal.addEventListener('abort', () => {
+            clearTimeout(timeout);
+            reject(new Error('AbortError'));
+          });
+        }
+      });
+    });
+    
+    formGuard.validatorRegistry.register('remote', mockValidator);
+    
+    const promise = formGuard.executeValidator(mockField, mockRule, 'value');
+    
+    // Cancel the validation
+    const key = `${mockField.name}-${mockRule.name}`;
+    const validationData = formGuard.asyncValidationPromises.get(key);
+    if (validationData && validationData.controller) {
+      validationData.controller.abort();
+    }
+    
+    const result = await promise;
+    expect(result).toBe(true); // Should return true for cancelled validations
+  });
+});

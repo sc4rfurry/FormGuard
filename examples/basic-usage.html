@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FormGuard - Basic Usage Example</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    
+    /* FormGuard styles */
+    .error {
+      border-color: #dc3545;
+      background-color: #fff5f5;
+    }
+    
+    .valid {
+      border-color: #28a745;
+      background-color: #f5fff5;
+    }
+    
+    .error-message {
+      color: #dc3545;
+      font-size: 14px;
+      margin-top: 5px;
+      display: block;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    
+    .btn:hover {
+      background-color: #0056b3;
+    }
+    
+    .btn:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    
+    /* Screen reader only class */
+    .sr-only {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+    
+    .demo-section {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+    }
+    
+    .demo-section h2 {
+      margin-top: 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>FormGuard - Basic Usage Examples</h1>
+  
+  <div class="demo-section">
+    <h2>1. Basic Contact Form</h2>
+    <p>This form demonstrates basic validation rules using data attributes.</p>
+    
+    <form id="contactForm">
+      <div class="form-group">
+        <label for="name">Full Name</label>
+        <input 
+          type="text" 
+          id="name" 
+          name="name"
+          data-validate="required|min:2"
+          data-error-msg="Please enter your full name (at least 2 characters)"
+        >
+      </div>
+      
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email"
+          data-validate="required|email"
+          data-error-msg="Please enter a valid email address"
+        >
+      </div>
+      
+      <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input 
+          type="tel" 
+          id="phone" 
+          name="phone"
+          data-validate="phone"
+          data-error-msg="Please enter a valid phone number"
+          placeholder="e.g., +1-555-123-4567"
+        >
+      </div>
+      
+      <div class="form-group">
+        <label for="message">Message</label>
+        <textarea 
+          id="message" 
+          name="message" 
+          rows="4"
+          data-validate="required|min:10|max:500"
+          data-error-msg="Please enter a message between 10 and 500 characters"
+        ></textarea>
+      </div>
+      
+      <button type="submit" class="btn">Send Message</button>
+    </form>
+  </div>
+  
+  <div class="demo-section">
+    <h2>2. Registration Form</h2>
+    <p>This form shows password confirmation and conditional validation.</p>
+    
+    <form id="registrationForm">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input 
+          type="text" 
+          id="username" 
+          name="username"
+          data-validate="required|min:3|max:20|pattern:^[a-zA-Z0-9_]+$"
+          data-error-msg="Username must be 3-20 characters, letters, numbers, and underscores only"
+        >
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password"
+          data-validate="required|min:8"
+          data-error-msg="Password must be at least 8 characters long"
+        >
+      </div>
+      
+      <div class="form-group">
+        <label for="confirmPassword">Confirm Password</label>
+        <input 
+          type="password" 
+          id="confirmPassword" 
+          name="confirmPassword"
+          data-validate="required|match:password"
+          data-error-msg="Passwords do not match"
+        >
+      </div>
+      
+      <div class="form-group">
+        <label for="age">Age</label>
+        <input 
+          type="number" 
+          id="age" 
+          name="age"
+          data-validate="required|min:13|max:120"
+          data-error-msg="Age must be between 13 and 120"
+        >
+      </div>
+      
+      <div class="form-group">
+        <label for="website">Website (Optional)</label>
+        <input 
+          type="url" 
+          id="website" 
+          name="website"
+          data-validate="url"
+          data-error-msg="Please enter a valid URL (including http:// or https://)"
+          placeholder="https://example.com"
+        >
+      </div>
+      
+      <button type="submit" class="btn">Create Account</button>
+    </form>
+  </div>
+  
+  <div class="demo-section">
+    <h2>3. Payment Form</h2>
+    <p>This form demonstrates advanced validation including credit card validation.</p>
+    
+    <form id="paymentForm">
+      <div class="form-group">
+        <label for="cardNumber">Credit Card Number</label>
+        <input 
+          type="text" 
+          id="cardNumber" 
+          name="cardNumber"
+          data-validate="required|creditcard"
+          data-error-msg="Please enter a valid credit card number"
+          placeholder="1234 5678 9012 3456"
+        >
+      </div>
+      
+      <div style="display: flex; gap: 15px;">
+        <div class="form-group" style="flex: 1;">
+          <label for="expiryDate">Expiry Date</label>
+          <input 
+            type="month" 
+            id="expiryDate" 
+            name="expiryDate"
+            data-validate="required"
+            data-error-msg="Please select an expiry date"
+          >
+        </div>
+        
+        <div class="form-group" style="flex: 1;">
+          <label for="cvv">CVV</label>
+          <input 
+            type="text" 
+            id="cvv" 
+            name="cvv"
+            data-validate="required|pattern:^[0-9]{3,4}$"
+            data-error-msg="CVV must be 3 or 4 digits"
+            maxlength="4"
+          >
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="billingZip">Billing ZIP Code</label>
+        <input 
+          type="text" 
+          id="billingZip" 
+          name="billingZip"
+          data-validate="required|pattern:^[0-9]{5}(-[0-9]{4})?$"
+          data-error-msg="Please enter a valid ZIP code (12345 or 12345-6789)"
+        >
+      </div>
+      
+      <button type="submit" class="btn">Process Payment</button>
+    </form>
+  </div>
+  
+  <!-- FormGuard Library -->
+  <script type="module">
+    // Import FormGuard from built version
+    import { FormGuard } from '../dist/formguard.esm.js';
+    
+    // Initialize forms
+    const contactForm = new FormGuard(document.getElementById('contactForm'), {
+      validateOn: 'blur',
+      focusInvalid: true
+    });
+    
+    const registrationForm = new FormGuard(document.getElementById('registrationForm'), {
+      validateOn: 'blur',
+      focusInvalid: true
+    });
+    
+    const paymentForm = new FormGuard(document.getElementById('paymentForm'), {
+      validateOn: 'blur',
+      focusInvalid: true,
+      preventSubmit: true
+    });
+    
+    // Add event listeners to show validation events
+    ['contactForm', 'registrationForm', 'paymentForm'].forEach(formId => {
+      const form = document.getElementById(formId);
+      
+      form.addEventListener('formguard:submit', (event) => {
+        if (event.detail.valid) {
+          alert(`${formId} is valid! In a real app, this would submit to your server.`);
+        } else {
+          console.log(`${formId} validation errors:`, event.detail.errors);
+        }
+      });
+      
+      form.addEventListener('formguard:valid', (event) => {
+        console.log(`Field ${event.detail.field.name} is valid`);
+      });
+      
+      form.addEventListener('formguard:invalid', (event) => {
+        console.log(`Field ${event.detail.field.name} is invalid:`, event.detail.errors);
+      });
+    });
+    
+    // Demonstrate programmatic validation
+    window.validateContactForm = () => {
+      contactForm.validate().then(isValid => {
+        alert(isValid ? 'Contact form is valid!' : 'Contact form has errors');
+      });
+    };
+    
+    // Demonstrate form reset
+    window.resetForms = () => {
+      contactForm.reset();
+      registrationForm.reset();
+      paymentForm.reset();
+      alert('All forms have been reset');
+    };
+  </script>
+  
+  <div class="demo-section">
+    <h2>Demo Actions</h2>
+    <button onclick="validateContactForm()" class="btn">Validate Contact Form</button>
+    <button onclick="resetForms()" class="btn">Reset All Forms</button>
+  </div>
+  
+  <div class="demo-section">
+    <h2>Features Demonstrated</h2>
+    <ul>
+      <li><strong>Required validation</strong> - Fields that must be filled</li>
+      <li><strong>Email validation</strong> - Proper email format checking</li>
+      <li><strong>Length validation</strong> - Minimum and maximum character limits</li>
+      <li><strong>Pattern matching</strong> - Regular expression validation</li>
+      <li><strong>Field matching</strong> - Password confirmation</li>
+      <li><strong>Number validation</strong> - Numeric ranges</li>
+      <li><strong>URL validation</strong> - Valid web addresses</li>
+      <li><strong>Credit card validation</strong> - Luhn algorithm checking</li>
+      <li><strong>Phone validation</strong> - International phone number format</li>
+      <li><strong>Custom error messages</strong> - User-friendly validation feedback</li>
+      <li><strong>Accessibility features</strong> - ARIA attributes and screen reader support</li>
+      <li><strong>Live validation</strong> - Real-time feedback as users type</li>
+    </ul>
+  </div>
+</body>
+</html>

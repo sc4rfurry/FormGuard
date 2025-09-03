@@ -1,0 +1,94 @@
+{
+  "name": "formguard",
+  "version": "1.0.0",
+  "description": "Enterprise-grade form validation library with zero dependencies",
+  "type": "module",
+  "keywords": [
+    "form",
+    "validation",
+    "accessibility",
+    "html5",
+    "zero-dependencies",
+    "lightweight",
+    "typescript",
+    "web-components",
+    "form-validation",
+    "javascript",
+    "vanilla-js",
+    "wcag",
+    "a11y",
+    "enterprise",
+    "security",
+    "async-validation",
+    "i18n",
+    "internationalization"
+  ],
+  "homepage": "https://github.com/sc4rfurry/FormGuard#readme",
+  "bugs": {
+    "url": "https://github.com/sc4rfurry/FormGuard/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sc4rfurry/FormGuard.git"
+  },
+  "license": "MIT",
+  "author": "sc4rfurry",
+  "main": "dist/formguard.js",
+  "module": "dist/formguard.esm.js",
+  "browser": "dist/formguard.min.js",
+  "unpkg": "dist/formguard.min.js",
+  "jsdelivr": "dist/formguard.min.js",
+  "types": "types/formguard.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/formguard.esm.js",
+      "require": "./dist/formguard.js",
+      "browser": "./dist/formguard.min.js",
+      "types": "./types/formguard.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "src",
+    "types",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "build:watch": "rollup -c --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:e2e": "playwright test",
+    "test:accessibility": "jest --testPathPattern=accessibility",
+    "lint": "eslint src --ext .js",
+    "lint:fix": "eslint src --ext .js --fix",
+    "serve:examples": "python3 -m http.server 3000 --directory examples",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run test && npm run build"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.22.0",
+    "@babel/preset-env": "^7.22.0",
+    "@playwright/test": "^1.35.0",
+    "@rollup/plugin-babel": "^6.0.3",
+    "@rollup/plugin-node-resolve": "^15.1.0",
+    "@rollup/plugin-terser": "^0.4.3",
+    "axe-core": "^4.7.0",
+    "babel-jest": "^29.5.0",
+    "eslint": "^8.42.0",
+    "jest": "^29.5.0",
+    "jest-environment-jsdom": "^29.5.0",
+    "rollup": "^3.25.0",
+    "rollup-plugin-filesize": "^10.0.0"
+  },
+  "browserslist": [
+    "Chrome >= 90",
+    "Firefox >= 88",
+    "Safari >= 14",
+    "Edge >= 90"
+  ]
+}
