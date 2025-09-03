@@ -4,11 +4,11 @@
 
 **Enterprise-Grade Form Validation for Modern Web Applications**
 
-[![npm version](https://img.shields.io/npm/v/formguard?style=for-the-badge&logo=npm&color=cb3837)](https://www.npmjs.com/package/formguard)
+[![npm version](https://img.shields.io/npm/v/@sc4rfurry-github/formguard?style=for-the-badge&logo=npm&color=cb3837)](https://www.npmjs.com/package/@sc4rfurry-github/formguard)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/sc4rfurry/FormGuard/ci.yml?style=for-the-badge&logo=github)](https://github.com/sc4rfurry/FormGuard/actions)
-[![Bundle Size](https://img.shields.io/bundlephobia/minzip/formguard?style=for-the-badge&logo=webpack&color=8dd6f9)](https://bundlephobia.com/package/formguard)
-[![Downloads](https://img.shields.io/npm/dm/formguard?style=for-the-badge&logo=npm&color=green)](https://www.npmjs.com/package/formguard)
+[![Bundle Size](https://img.shields.io/bundlephobia/minzip/@sc4rfurry-github/formguard?style=for-the-badge&logo=webpack&color=8dd6f9)](https://bundlephobia.com/package/@sc4rfurry-github/formguard)
+[![Downloads](https://img.shields.io/npm/dm/@sc4rfurry-github/formguard?style=for-the-badge&logo=npm&color=green)](https://www.npmjs.com/package/@sc4rfurry-github/formguard)
 
 ---
 
@@ -205,7 +205,7 @@ yarn add @sc4rfurry-github/formguard
 pnpm add @sc4rfurry-github/formguard
 
 # Bun (fastest)
-bun add formguard
+bun add @sc4rfurry-github/formguard
 ```
 
 </details>
@@ -215,13 +215,13 @@ bun add formguard
 
 ```html
 <!-- Latest version (recommended) -->
-<script src="https://unpkg.com/formguard@latest/dist/formguard.min.js"></script>
+<script src="https://unpkg.com/@sc4rfurry-github/formguard@latest/dist/formguard.min.js"></script>
 
 <!-- Specific version (for production) -->
-<script src="https://unpkg.com/formguard@1.0.0/dist/formguard.min.js"></script>
+<script src="https://unpkg.com/@sc4rfurry-github/formguard@1.0.0/dist/formguard.min.js"></script>
 
 <!-- jsDelivr CDN (alternative) -->
-<script src="https://cdn.jsdelivr.net/npm/formguard@latest/dist/formguard.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@sc4rfurry-github/formguard@latest/dist/formguard.min.js"></script>
 ```
 
 </details>
@@ -240,7 +240,7 @@ import FormGuard from '@sc4rfurry-github/formguard';
 const { FormGuard } = require('@sc4rfurry-github/formguard');
 
 // AMD
-define(['formguard'], function(FormGuard) {
+define(['@sc4rfurry-github/formguard'], function(FormGuard) {
   // Your code here
 });
 
@@ -1208,7 +1208,7 @@ formGuard.addCustomValidators({
     </div>
   </form>
 
-  <script src="https://unpkg.com/formguard@latest/dist/formguard.min.js"></script>
+  <script src="https://unpkg.com/@sc4rfurry-github/formguard@latest/dist/formguard.min.js"></script>
   <script>
     // Initialize FormGuard
     const formGuard = new FormGuard('#registration-form', {
@@ -1370,7 +1370,7 @@ formGuard.addCustomValidators({
 
 <div align="center">
 
-[![Bundle Size](https://img.shields.io/bundlephobia/minzip/formguard?style=for-the-badge&logo=webpack&color=8dd6f9)](https://bundlephobia.com/package/formguard)
+[![Bundle Size](https://img.shields.io/bundlephobia/minzip/@sc4rfurry-github/formguard?style=for-the-badge&logo=webpack&color=8dd6f9)](https://bundlephobia.com/package/@sc4rfurry-github/formguard)
 [![Performance](https://img.shields.io/badge/Performance-Optimized-green?style=for-the-badge&logo=speedtest)](https://github.com/sc4rfurry/FormGuard)
 
 </div>
